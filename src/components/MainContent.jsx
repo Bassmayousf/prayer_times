@@ -17,23 +17,21 @@ import axios from "axios";
 import moment from "moment";
 
 export default function MainContent() {
-  const [date, getDate] = useState("");
+  const [date, setDate] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedCity, setSelectedCity] = useState("Cairo");
-
   const [timing, setTiming] = useState({
     Fajr: "04:17",
     Dhuhr: "04:17",
     Asr: "04:17",
-    Sunset: "04:17",
+    Sunset: "04:19",
     Isha: "04:17",
   });
   const [reminingTime, setReminingTime] = useState();
-  const [nextPrayerIndex, setNextPrayerIndex] = useState("Fajr");
+  const [nextPrayerIndex, setNextPrayerIndex] = useState("");
   const countDwonTimer = () => {
     const momentNow = moment();
     let prayerIndex = 1;
-    console.log(Object.keys(timing).indexOf("Dhuhr"));
     if (
       momentNow.isAfter(moment(timing["Fajr"], "HH:mm")) &&
       momentNow.isBefore(moment(timing["Dhuhr"], "HH:mm"))
@@ -68,11 +66,11 @@ export default function MainContent() {
       momentNow
     );
     let durationTime = moment.duration(remining);
-    console.log(
-      durationTime.hours(),
-      durationTime.minutes(),
-      durationTime.seconds()
-    );
+    // console.log(
+    //   durationTime.hours(),
+    //   durationTime.minutes(),
+    //   durationTime.seconds()
+    // );
     setReminingTime(
       `${durationTime.hours()} : ${durationTime.minutes()} : ${durationTime.seconds()}`
     );
@@ -80,13 +78,13 @@ export default function MainContent() {
     // console.log(moment(timing[Object.values(timing)[nextPrayerIndex]], "HH:mm"))
   };
   const handleCityChange = (event) => {
-    console.log(event.target.value);
     setSelectedCity(event.target.value);
   };
 
   const getTiming = async () => {
+    
     const response = await axios.get(
-      `https://api.aladhan.com/v1/calendarByCity/2023/12?city=${selectedCity}&country=Egypt&method=2`
+      `https://api.aladhan.com/v1/calendarByCity/2024/1?city=${selectedCity}&country=Egypt&method=2`
     );
     const times = response.data.data;
     const currentDate = new Date(Date());
@@ -96,12 +94,10 @@ export default function MainContent() {
     const formattedDate = `${day.toString().padStart(2, "0")}-${month
       .toString()
       .padStart(2, "0")}-${year}`;
-    getDate(formattedDate);
+    setDate(formattedDate);
     times.map((time) => {
       if (time.date.gregorian.date == formattedDate) {
-        console.log(formattedDate, time.date.gregorian.date);
 
-        console.log(time.timings);
         setTiming(time.timings);
       }
     });
@@ -115,7 +111,7 @@ export default function MainContent() {
         clearInterval(rtime);
       };
     },
-    [timing]
+  [timing],[selectedCity]
   );
 
   useEffect(() => {
@@ -130,7 +126,9 @@ export default function MainContent() {
   }, []);
   useEffect(() => {
     getTiming();
-  }, [selectedCity],[timing]);
+    countDwonTimer();
+
+  }, [timing],[selectedCity]);
 
   return (
     <div>
@@ -201,6 +199,15 @@ export default function MainContent() {
             <MenuItem value="Cairo">Cairo</MenuItem>
             <MenuItem value="Alexandria">Alexandria</MenuItem>
             <MenuItem value="Aswan">Aswan</MenuItem>
+            <MenuItem value="Suez">Suez</MenuItem>
+            <MenuItem value="South Sinai">South Sinai	</MenuItem>
+            <MenuItem value="Damietta">Damietta</MenuItem>
+            <MenuItem value="Luxor">Luxor</MenuItem>
+            <MenuItem value="Red Sea">Red Sea	</MenuItem>
+            <MenuItem value="North Sinai">North Sinai	</MenuItem>
+            <MenuItem value="New Valley">New Valley	</MenuItem>
+            <MenuItem value="Port Said">Port Said	</MenuItem>
+            <MenuItem value="Sohag">Sohag	</MenuItem>
           </Select>
         </FormControl>
       </Box>{" "}
